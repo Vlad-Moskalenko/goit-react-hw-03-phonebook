@@ -49,7 +49,7 @@ ContactList.propTypes = {
   contacts: PropTypes.arrayOf(PropTypes.shape({
     id: PropTypes.string,
     name: PropTypes.string,
-    number: PropTypes.number
+    number: PropTypes.string
   }
   )),
   filter: PropTypes.string
