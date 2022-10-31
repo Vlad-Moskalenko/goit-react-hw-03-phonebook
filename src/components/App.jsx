@@ -1,3 +1,5 @@
+import PropTypes from "prop-types"
+
 import { Component } from 'react';
 import { ContactForm } from './ContactForm';
 import { Filter } from './Filter';
@@ -41,4 +43,14 @@ export class App extends Component {
       </div>
     );
   }
+}
+
+ContactList.propTypes = {
+  contacts: PropTypes.arrayOf(PropTypes.shape({
+    id: PropTypes.string,
+    name: PropTypes.string,
+    number: PropTypes.number
+  }
+  )),
+  filter: PropTypes.string
 }

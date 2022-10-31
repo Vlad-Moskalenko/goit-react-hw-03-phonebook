@@ -18,3 +18,4 @@ export const ContactList = ({ contacts, filter, deleteContact }) => {
     </ol>
   );
 };
+
