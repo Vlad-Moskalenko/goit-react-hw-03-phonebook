@@ -14,28 +14,12 @@ code {
     monospace;
 }
 
-.app-wrapper {
+button{
+  cursor: pointer;
+}
+
+.app-wrapper{
   padding: 15px;
   max-width: 400px;
 }
 
-.name,
-.number,
-.findContacts {
-  margin-bottom: 20px;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.contacts-list {
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.contacts-list li {
-  display: flex;
-  justify-content: space-between;
-}

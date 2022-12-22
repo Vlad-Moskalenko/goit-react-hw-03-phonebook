@@ -1,9 +1,10 @@
-import PropTypes from "prop-types"
-
 import { Component } from 'react';
-import { ContactForm } from './ContactForm';
-import { Filter } from './Filter';
-import { ContactList } from './ContactList';
+import { nanoid } from 'nanoid';
+
+import { Section } from './Section/Section';
+import ContactForm from './ContactForm/ContactForm';
+import { ContactsList } from './ContactsList/ContactsList';
+import { Filter } from './Filter/Filter';
 
 export class App extends Component {
   state = {
@@ -11,57 +12,70 @@ export class App extends Component {
     filter: '',
   };
 
-  onAddContact = e => {
-    e.preventDefault();
+  onSearch = e => this.setState({ filter: e.target.value });
 
-    const { value: name, id } = e.target.elements.name;
-    const number = e.target.elements.number.value;
-    const isUniqueContact = this.state.contacts.find(contact => contact.name.toLowerCase() === name.toLowerCase())
+  onAddContact = ({ name, number }) => {
+    if (this.isNotUniqueContact(name)) {
+      return alert(`${name} is already in contacts`);
+    }
 
-    if(isUniqueContact) return alert(`${name} is already in contacts`)
+    const newContact = {
+      id: nanoid(),
+      name: name,
+      number: number,
+    };
 
-    this.setState(({ contacts }) => {
-      return {contacts: [...contacts, { id, name, number }]}
-    });
-
-    e.target.reset();
+    this.setState(prevState => ({
+      contacts: [...prevState.contacts, newContact],
+    }));
   };
 
-  findContact = e => this.setState({ filter: e.target.value });
+  isNotUniqueContact = newContactName => {
+    return this.state.contacts.find(
+      ({ name }) => name.toLowerCase() === newContactName.toLowerCase()
+    );
+  };
 
-  deleteContact = e => this.setState(({contacts}) => ({contacts: contacts.filter(({id}) => id !== e.target.parentElement.id)}))
+  onDeleteContact = contactId => {
+    this.setState(({ contacts }) => ({
+      contacts: contacts.filter(({ id }) => id !== contactId),
+    }));
+  };
 
-  componentDidUpdate(prevProps, prevState){
-    if(prevState.contacts.length !== this.state.contacts.length) {
-      localStorage.setItem('contactsList', JSON.stringify(this.state.contacts))
+  componentDidMount() {
+    const contactsData = localStorage.getItem('contacts');
+    contactsData && this.setState({ contacts: JSON.parse(contactsData) });
+  }
+
+  componentDidUpdate(_, prevState) {
+    if (prevState.contacts.length !== this.state.contacts.length) {
+      localStorage.setItem('contacts', JSON.stringify(this.state.contacts));
     }
   }
 
-  componentDidMount(){
-    const contactsList = localStorage.getItem('contactsList')
-    if(contactsList) this.setState({contacts: JSON.parse(contactsList)})
-  }
-
   render() {
-    const {contacts, filter} = this.state
+    const { contacts, filter } = this.state;
+    const { onSearch, onAddContact, onDeleteContact } = this;
     return (
-      <div className="app-wrapper">
-        <h1>Phonebook</h1>
-        <ContactForm onSubmit={this.onAddContact} />
-        <h2>Contacts</h2>
-        <Filter onChange={this.findContact} />
-        <ContactList contacts={contacts} filter={filter} deleteContact={this.deleteContact}/>
-      </div>
+      <main className="app-wrapper">
+        <Section title="Phonebook">
+          <ContactForm onAddContact={onAddContact} />
+        </Section>
+        <Section title="Contacts">
+          {contacts.length > 0 ? (
+            <>
+              <Filter onSearch={onSearch} filter={filter} />
+              <ContactsList
+                contactsList={contacts}
+                filter={filter}
+                onDeleteContact={onDeleteContact}
+              />
+            </>
+          ) : (
+            <p>There are no contacts yet...</p>
+          )}
+        </Section>
+      </main>
     );
   }
-}
-
-ContactList.propTypes = {
-  contacts: PropTypes.arrayOf(PropTypes.shape({
-    id: PropTypes.string,
-    name: PropTypes.string,
-    number: PropTypes.string
-  }
-  )),
-  filter: PropTypes.string
 }
